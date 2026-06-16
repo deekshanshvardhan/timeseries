@@ -108,12 +108,16 @@ def header(slide, kicker, title, accent=INDIGO):
         [P(title, 27, WHITE, True)], anchor=MSO_ANCHOR.MIDDLE)
 
 
-def footer(slide, page):
+_PAGE = [1]  # title slide is page 1 (no footer); footers auto-number from 2
+
+
+def footer(slide, page=None):
+    _PAGE[0] += 1
     txt(slide, Inches(0.6), Inches(7.06), Inches(8), Inches(0.3),
         [P("Louie Voice SDK  |  Strategic Project Selection  |  Confidential", 9, GREY)],
         anchor=MSO_ANCHOR.MIDDLE)
     txt(slide, Inches(12.0), Inches(7.06), Inches(0.8), Inches(0.3),
-        [P(str(page), 9, GREY, True)], align=PP_ALIGN.RIGHT, anchor=MSO_ANCHOR.MIDDLE)
+        [P(str(_PAGE[0]), 9, GREY, True)], align=PP_ALIGN.RIGHT, anchor=MSO_ANCHOR.MIDDLE)
 
 
 def placeholder(slide, x, y, w, h, label):
@@ -423,10 +427,10 @@ reason_slide(
 reason_slide(
     3, "Reason 3", "The addressable market is far larger",
     "Reach multiplies our impact. Far more people ride than invest \u2014 and they do it far more often.",
-    ["Ride-hailing is a daily, mass-market need across cities & towns",
-     "High frequency \u2014 multiple rides per user per week",
-     "Drivers + riders both benefit from a voice layer"],
-    ["Only a small minority of India invests in markets",
+    ["Rapido: ~35\u201340 lakh rides per day (tens of millions of monthly users)",
+     "Ride-hailing is a daily, mass-market habit across cities & towns",
+     "High frequency \u2014 multiple rides per user per week"],
+    ["India active demat accounts \u2248 19 crore, but unique investors are far fewer",
      "Awareness-stage users invest rarely, if at all",
      "Even fewer invest impulsively \u2014 the low-frequency edge case"],
     "More users \u00d7 more frequency = far more voice interactions and a far bigger demo of our value.", 11)
@@ -455,10 +459,46 @@ reason_slide(
 
 
 # ----------------------------------------------------------------------------
+# BY THE NUMBERS (quantitative evidence)
+# ----------------------------------------------------------------------------
+s = add_slide()
+header(s, "Quantitative evidence", "The case, by the numbers", AMBER)
+txt(s, Inches(0.6), Inches(1.5), Inches(12.1), Inches(0.45),
+    [P("Scale and frequency overwhelmingly favour mobility over investing.", 15, SLATE)])
+
+stats = [
+    ("~35\u201340 lakh", "Rapido rides booked per day", "A transaction Louie can complete, millions of times daily", TEAL),
+    ("Tens of\nmillions", "Monthly active Rapido users", "Huge base for vernacular, voice-led booking", TEAL),
+    ("\u2248 80 crore+", "Smartphone users in India", "The reachable surface for a voice interface", INDIGO),
+    ("\u2248 19 crore", "Active demat accounts (investing)", "And unique investors are far fewer still", RED),
+    ("Small %\nof India", "Invests in markets at all", "Even fewer invest impulsively \u2014 voice's weak spot", RED),
+    ("Daily", "Frequency of a commute vs. an investment", "Rides recur daily; investing is occasional", AMBER),
+]
+cw, ch, gx, gy = Inches(3.95), Inches(2.15), Inches(0.2), Inches(0.2)
+x0, y0 = Inches(0.6), Inches(2.15)
+for i, (big, label, sub, col) in enumerate(stats):
+    x = x0 + (i % 3) * (cw + gx)
+    y = y0 + (i // 3) * (ch + gy)
+    rect(s, x, y, cw, ch, fill=LIGHT)
+    rect(s, x, y, cw, Pt(6), fill=col)
+    txt(s, x + Inches(0.25), y + Inches(0.2), cw - Inches(0.5), Inches(0.95),
+        [P(big, 30, col, True)], line_spacing=0.9)
+    txt(s, x + Inches(0.25), y + Inches(1.2), cw - Inches(0.5), Inches(0.4),
+        [P(label, 13.5, NAVY, True)], line_spacing=1.0)
+    txt(s, x + Inches(0.25), y + Inches(1.58), cw - Inches(0.5), Inches(0.5),
+        [P(sub, 11.5, SLATE)], line_spacing=1.0)
+
+txt(s, Inches(0.6), Inches(6.75), Inches(12.1), Inches(0.35),
+    [[("Figures are approximate, directional public estimates \u2014 ", 10.5, SLATE, True),
+      ("verify and cite exact, dated sources before the final presentation.", 10.5, SLATE, False)]])
+footer(s)
+
+
+# ----------------------------------------------------------------------------
 # 14. SCORECARD
 # ----------------------------------------------------------------------------
 s = add_slide()
-header(s, "Side by side", "Comparison scorecard", INDIGO)
+header(s, "Side by side", "Comparison scorecard (qualitative)", INDIGO)
 rows = [
     ("Criterion", "Rapido", "Saarthi", True),
     ("End-to-end transaction fit", "High", "Low", False),
@@ -498,7 +538,104 @@ for i, (crit, ra, sa, ishead) in enumerate(rows):
         txt(s, c0 + Inches(0.2), y, w0 - Inches(0.3), rh, [P(crit, 14, DARKTEXT)], anchor=MSO_ANCHOR.MIDDLE)
         txt(s, c1, y, w1, rh, [P(ra, 14, rating_color(ra), True)], align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
         txt(s, c2, y, w2, rh, [P(sa, 14, rating_color(sa), True)], align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
-footer(s, 14)
+footer(s)
+
+
+# ----------------------------------------------------------------------------
+# WEIGHTED SCORING MATRIX
+# ----------------------------------------------------------------------------
+s = add_slide()
+header(s, "Decision analytics", "Weighted scoring matrix", TEAL)
+txt(s, Inches(0.6), Inches(1.45), Inches(12.1), Inches(0.4),
+    [P("Each criterion scored 0\u201310, weighted by importance to Louie's value. Totals are the weighted sums.", 14, SLATE)])
+
+# (criterion, weight%, rapido, saarthi)
+matrix = [
+    ("Transaction fit (end-to-end)", 35, 10, 3),
+    ("Market reach / frequency", 20, 9, 5),
+    ("Inclusion impact", 15, 9, 6),
+    ("Multilingual impact", 15, 9, 6),
+    ("Ease of voice adoption", 15, 10, 4),
+]
+rapido_total = sum(w * r for _, w, r, _ in matrix) / 100.0
+saarthi_total = sum(w * sa for _, w, _, sa in matrix) / 100.0
+
+top = Inches(2.05)
+rh = Inches(0.6)
+cc = [Inches(0.6), Inches(6.3), Inches(8.0), Inches(9.85), Inches(11.7)]
+cw_ = [Inches(5.6), Inches(1.6), Inches(1.75), Inches(1.75), Inches(1.0)]
+heads = ["Criterion", "Weight", "Rapido", "Saarthi", ""]
+# header row
+for j, htext in enumerate(heads):
+    fill = NAVY if j == 0 else (GREY if j == 1 else (TEAL if j == 2 else (INDIGO if j == 3 else NAVY)))
+    rect(s, cc[j], top, cw_[j], rh, fill=fill)
+    al = PP_ALIGN.LEFT if j == 0 else PP_ALIGN.CENTER
+    xpad = Inches(0.2) if j == 0 else Inches(0)
+    txt(s, cc[j] + xpad, top, cw_[j] - xpad, rh, [P(htext, 14, WHITE, True)], align=al, anchor=MSO_ANCHOR.MIDDLE)
+
+for i, (crit, w, r, sa) in enumerate(matrix):
+    y = top + (i + 1) * rh
+    bg = LIGHT if i % 2 else WHITE
+    for j in range(5):
+        rect(s, cc[j], y, cw_[j], rh, fill=bg)
+    txt(s, cc[0] + Inches(0.2), y, cw_[0] - Inches(0.3), rh, [P(crit, 13.5, DARKTEXT)], anchor=MSO_ANCHOR.MIDDLE)
+    txt(s, cc[1], y, cw_[1], rh, [P(f"{w}%", 13.5, SLATE, True)], align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    txt(s, cc[2], y, cw_[2], rh, [P(str(r), 14, TEAL, True)], align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    txt(s, cc[3], y, cw_[3], rh, [P(str(sa), 14, INDIGO, True)], align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    win = "\u2713" if r >= sa else ""
+    txt(s, cc[4], y, cw_[4], rh, [P(win, 14, TEAL, True)], align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+
+# totals row
+y = top + (len(matrix) + 1) * rh
+rect(s, cc[0], y, cw_[0] + cw_[1], rh, fill=NAVY)
+txt(s, cc[0] + Inches(0.2), y, cw_[0] + cw_[1] - Inches(0.3), rh,
+    [P("Weighted total (out of 10)", 14, WHITE, True)], anchor=MSO_ANCHOR.MIDDLE)
+rect(s, cc[2], y, cw_[2], rh, fill=TEAL)
+txt(s, cc[2], y, cw_[2], rh, [P(f"{rapido_total:.1f}", 16, WHITE, True)], align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+rect(s, cc[3], y, cw_[3], rh, fill=INDIGO)
+txt(s, cc[3], y, cw_[3], rh, [P(f"{saarthi_total:.1f}", 16, WHITE, True)], align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+rect(s, cc[4], y, cw_[4], rh, fill=TEAL)
+txt(s, cc[4], y, cw_[4], rh, [P("\u2713", 14, WHITE, True)], align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+
+txt(s, Inches(0.6), y + Inches(0.8), Inches(12), Inches(0.4),
+    [[("Verdict:  ", 15, NAVY, True),
+      (f"Rapido {rapido_total:.1f} vs Saarthi {saarthi_total:.1f} \u2014 a decisive margin, driven mainly by transaction fit.",
+       15, DARKTEXT, False)]])
+footer(s)
+
+
+# ----------------------------------------------------------------------------
+# COMMERCIAL / ROI ANGLE
+# ----------------------------------------------------------------------------
+s = add_slide()
+header(s, "Commercial lens", "Why Rapido is the better bet for Louie's business", TEAL)
+txt(s, Inches(0.6), Inches(1.5), Inches(12.1), Inches(0.45),
+    [P("If a stakeholder asks \u201cHow does Louie benefit commercially?\u201d \u2014 the answer is stronger with Rapido.", 15, SLATE)])
+
+roi = [
+    ("High daily usage", "Recurring rides mean continuous, sticky engagement with the voice layer.", TEAL),
+    ("Frequent voice interactions", "More sessions = more data to tune models and prove reliability.", INDIGO),
+    ("Strong demo value", "\u201cBook a ride end-to-end by voice\u201d is an instantly compelling sales demo.", AMBER),
+    ("Easier case-study generation", "High volume yields measurable adoption, retention and CSAT proof points.", TEAL),
+    ("Faster proof-of-concept", "A simple, bounded flow ships quickly and de-risks the engagement.", INDIGO),
+    ("Expansion runway", "Same playbook extends to food delivery, logistics & broader mobility.", AMBER),
+]
+cw, ch, gx, gy = Inches(3.95), Inches(2.0), Inches(0.2), Inches(0.2)
+x0, y0 = Inches(0.6), Inches(2.15)
+for i, (h, b, col) in enumerate(roi):
+    x = x0 + (i % 3) * (cw + gx)
+    y = y0 + (i // 3) * (ch + gy)
+    rect(s, x, y, cw, ch, fill=LIGHT)
+    rect(s, x, y, Inches(0.12), ch, fill=col)
+    txt(s, x + Inches(0.3), y + Inches(0.22), cw - Inches(0.5), Inches(0.7),
+        [P(h, 15.5, col, True)], line_spacing=1.0)
+    txt(s, x + Inches(0.3), y + Inches(0.95), cw - Inches(0.5), Inches(0.95),
+        [P(b, 12.5, DARKTEXT)], line_spacing=1.03)
+
+txt(s, Inches(0.6), Inches(6.75), Inches(12.1), Inches(0.35),
+    [[("Bottom line: ", 12, NAVY, True),
+      ("Rapido offers faster time-to-value, a better showcase, and a clear path to adjacent transactional categories.", 12, SLATE, False)]])
+footer(s)
 
 
 # ----------------------------------------------------------------------------
@@ -525,7 +662,53 @@ for q, a in qa:
     txt(s, Inches(0.9), y + Inches(0.56), Inches(11.5), Inches(0.55),
         [[("Response:  ", 13.5, TEAL, True), (a, 13.5, DARKTEXT, False)]], line_spacing=1.0)
     y += Inches(1.28)
-footer(s, 15)
+footer(s)
+
+
+# ----------------------------------------------------------------------------
+# RISKS & MITIGATION (delivery risks)
+# ----------------------------------------------------------------------------
+s = add_slide()
+header(s, "Practical delivery", "Key risks & mitigations", RED)
+txt(s, Inches(0.6), Inches(1.5), Inches(12.1), Inches(0.4),
+    [P("Voice-enabling a live transaction carries real-world risks \u2014 each has a practical mitigation.", 15, SLATE)])
+
+# table header
+hy = Inches(2.1)
+rh = Inches(0.62)
+xc1, xc2 = Inches(0.6), Inches(6.55)
+wc1, wc2 = Inches(5.75), Inches(6.15)
+rect(s, xc1, hy, wc1, rh, fill=RED)
+rect(s, xc2, hy, wc2, rh, fill=TEAL)
+txt(s, xc1 + Inches(0.2), hy, wc1 - Inches(0.3), rh, [P("Risk", 15, WHITE, True)], anchor=MSO_ANCHOR.MIDDLE)
+txt(s, xc2 + Inches(0.2), hy, wc2 - Inches(0.3), rh, [P("Mitigation", 15, WHITE, True)], anchor=MSO_ANCHOR.MIDDLE)
+
+risks = [
+    ("Incorrect pickup / drop location captured via voice",
+     "Explicit read-back & confirmation step before booking; map pin preview."),
+    ("Accent, dialect & language variation",
+     "Multilingual model tuning; per-language acoustic & vocabulary adaptation."),
+    ("Noisy outdoor / on-the-move environment",
+     "Hybrid voice + touch fallback; noise-robust ASR and re-prompting."),
+    ("Mis-triggered payment or wrong fare",
+     "Confirm amount aloud; require explicit \u201cyes\u201d before charging."),
+    ("Recognition failure / user frustration",
+     "Graceful fallback to standard UI; never block the core booking flow."),
+]
+ry = hy + rh
+rrh = Inches(0.7)
+for i, (risk, mit) in enumerate(risks):
+    bg = LIGHT if i % 2 else WHITE
+    rect(s, xc1, ry, wc1, rrh, fill=bg)
+    rect(s, xc2, ry, wc2, rrh, fill=bg)
+    txt(s, xc1 + Inches(0.2), ry, wc1 - Inches(0.35), rrh, [P(risk, 13, DARKTEXT)], anchor=MSO_ANCHOR.MIDDLE, line_spacing=1.0)
+    txt(s, xc2 + Inches(0.2), ry, wc2 - Inches(0.35), rrh, [P(mit, 13, DARKTEXT)], anchor=MSO_ANCHOR.MIDDLE, line_spacing=1.0)
+    ry += rrh
+
+txt(s, Inches(0.6), ry + Inches(0.12), Inches(12.1), Inches(0.4),
+    [[("Note: ", 12, NAVY, True),
+      ("confirmation-first design keeps every voice transaction safe, reversible and trustworthy.", 12, SLATE, False)]])
+footer(s)
 
 
 # ----------------------------------------------------------------------------
